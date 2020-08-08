@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+    ca-builder:
+      container_name: ca-builder
+      image: haproxy:lts
+      volumes:
+        - type: bind
+          source: ${PWD}/qc/
+          target: /qc/
+        - type: bind
+          source: ${PWD}/confs/ca.conf
+          target: /opt/ca.conf
+        - type: bind
+          source: ${PWD}/scripts/gen_certs.sh
+          target: /opt/gen_certs.sh
+      command: "/bin/bash -c 'apt-get update && apt-get install -y openssl rsync && cd /opt/ && ./gen_certs.sh'"

@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+    ssl-server:
+      container_name: ssl-server
+      image: haproxy:lts
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - type: bind
+          source: ${PWD}/qc/
+          target: /qc/
+        - type: bind
+          source: ${PWD}/confs/server.cfg
+          target: /usr/local/etc/haproxy/haproxy.cfg
+        - type: bind
+          source: ${PWD}/confs/hello.html
+          target: /etc/haproxy/hello.html
+      healthcheck:
+        test: ["CMD", "curl", "--silent", "--fail", "-k", "https://localhost"]
+        start_period: 10s
+        interval: 1m30s
+        timeout: 10s
+        retries: 3
+      stop_grace_period: 1s
+    ssl-client:
+      container_name: ssl-client
+      image: haproxy:lts
+      depends_on:
+        - ssl-server
+      ports:
+        - "8080:80"
+      volumes:
+        - type: bind
+          source: ${PWD}/qc/
+          target: /qc/
+        - type: bind
+          source: ${PWD}/confs/client.cfg
+          target: /usr/local/etc/haproxy/haproxy.cfg
+      healthcheck:
+        test: ["CMD", "curl", "--silent", "--fail", "-k", "http://localhost"]
+        start_period: 10s
+        interval: 1m30s
+        timeout: 10s
+        retries: 3
+      stop_grace_period: 1s
