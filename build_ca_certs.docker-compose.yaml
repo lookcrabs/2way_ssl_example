@@ -3,6 +3,7 @@ services:
     ca-builder:
       container_name: ca-builder
       image: haproxy:lts
+      user: root
       volumes:
         - type: bind
           source: ${PWD}/qc/
